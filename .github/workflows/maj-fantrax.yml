@@ -1,0 +1,60 @@
+name: maj-fantrax
+
+# Planning : QUOTIDIEN 09:00 UTC = 11:00 Paris (été ; 10:00 en hiver).
+# + lancement manuel possible (onglet Actions → Run workflow).
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: fantrax-repo      # partagé avec triage.yml pour sérialiser les push git
+  cancel-in-progress: false
+
+permissions:
+  contents: write        # pour re-committer le snapshot/log (baseline du diff hebdo)
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python (diff_contracts.py)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps + Chromium
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Run agent
+        env:
+          # Tous les secrets du repo passés en bloc → le runner résout authSecret /
+          # slackWebhookSecret / discordWebhookSecret / PROXY_* par nom.
+          # Onboarder une ligue = ajouter le secret ici SANS toucher au YAML.
+          SECRETS_JSON: ${{ toJSON(secrets) }}
+        run: node src/run_fantrax.mjs
+
+      - name: Commit snapshot + logs (baseline du prochain diff)
+        if: always()
+        run: |
+          git config user.name  "fantrax-agent[bot]"
+          git config user.email "fantrax-agent@users.noreply.github.com"
+          git add data/contract_map.json data/snapshots logs || true
+          if ! git diff --cached --quiet; then
+            git commit -m "run ${{ github.run_id }} — snapshot + logs [skip ci]"
+            git pull --rebase --autostash origin ${{ github.ref_name }} || true
+            git push
+          else
+            echo "Aucun changement à committer."
+          fi

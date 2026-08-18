@@ -1,0 +1,18 @@
+{
+  "name": "fantrax-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agent Fantrax multi-ligue headless — MAJ Year+Sal depuis Spotrac, exécuté par GitHub Actions (ou VPS/Pi). Sans PC live.",
+  "scripts": {
+    "start": "node src/run_fantrax.mjs",
+    "triage": "node src/triage.mjs",
+    "export-session": "node src/export_session.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

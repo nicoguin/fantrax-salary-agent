@@ -1,0 +1,19 @@
+# deps
+node_modules/
+
+# secrets / cookies — never commit
+.env
+fantrax_state*.json
+*_state.json
+.secrets/
+
+# runtime outputs (not shipped in the showcase)
+data/contract_map.json
+data/snapshots/
+logs/
+data/discord_state.json
+
+# OS / editor junk
+desktop.ini
+Thumbs.db
+.DS_Store

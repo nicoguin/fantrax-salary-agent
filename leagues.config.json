@@ -1,0 +1,43 @@
+{
+  "_README": "EXEMPLE de configuration (repo vitrine). Remplacer les valeurs 'YOUR_...' par les vôtres. Ajouter une ligue = un objet ici + les secrets GitHub référencés. Les secrets sont passés au runner en bloc via toJSON(secrets) → aucune modif du workflow nécessaire.",
+  "_schema": {
+    "id": "ID de ligue Fantrax (dans l'URL /fantasy/league/<ID>/).",
+    "name": "Nom lisible.",
+    "authSecret": "Nom du secret GitHub contenant le storageState (cookies) Fantrax du compte propriétaire.",
+    "slackWebhookSecret": "Nom du secret GitHub = URL Incoming Webhook Slack. null = pas de Slack.",
+    "discordWebhookSecret": "Nom du secret GitHub = URL webhook Discord. null = pas de Discord.",
+    "comment": "true = préfixer le récap du commentaire narratif auto des mouvements.",
+    "overrides": "Exceptions manuelles : { 'nom normalise': { 'year': 'valeur' } }.",
+    "correctionsChannelId": "ID du canal Discord de remontée des écarts (triage). null = désactivé."
+  },
+  "leagues": [
+    {
+      "id": "YOUR_LEAGUE_ID_1",
+      "name": "Ma Ligue A",
+      "authSecret": "FANTRAX_STATE_MAIN",
+      "slackWebhookSecret": "SLACK_WEBHOOK_MAIN",
+      "discordWebhookSecret": "DISCORD_WEBHOOK_MAIN",
+      "comment": true,
+      "overrides": {},
+      "correctionsChannelId": null
+    },
+    {
+      "id": "YOUR_LEAGUE_ID_2",
+      "name": "Ma Ligue B",
+      "authSecret": "FANTRAX_STATE_MAIN",
+      "slackWebhookSecret": "SLACK_WEBHOOK_MAIN",
+      "discordWebhookSecret": null,
+      "comment": true,
+      "overrides": { "exemple joueur": { "year": "1+0" } },
+      "correctionsChannelId": null
+    }
+  ],
+  "triage": {
+    "_note": "Boucle de remontée des écarts (src/triage.mjs) : les users postent un écart en texte libre dans le canal Discord de leur ligue ; l'agent classe + vérifie + corrige / explique / escalade.",
+    "model": "claude-sonnet-5",
+    "botTokenSecret": "DISCORD_BOT_TOKEN",
+    "anthropicKeySecret": "ANTHROPIC_API_KEY",
+    "adminSlackWebhookSecret": "SLACK_WEBHOOK_MAIN",
+    "maxMessagesPerRun": 20
+  }
+}

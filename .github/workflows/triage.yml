@@ -1,0 +1,46 @@
+name: fantrax-triage
+
+# Remontées d'écarts Discord → triage Claude → correction/explication/escalade.
+# 3×/jour (08:00, 13:00, 18:00 UTC ≈ 10h, 15h, 20h Paris été). + run manuel.
+on:
+  schedule:
+    - cron: "0 8,13,18 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: fantrax-repo        # partagé avec maj-fantrax pour sérialiser les push git
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install deps + Chromium
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+      - name: Triage
+        env:
+          SECRETS_JSON: ${{ toJSON(secrets) }}
+        run: node src/triage.mjs
+      - name: Commit overrides + état Discord
+        if: always()
+        run: |
+          git config user.name  "fantrax-agent[bot]"
+          git config user.email "fantrax-agent@users.noreply.github.com"
+          git add leagues.config.json data/discord_state.json data/contract_map.json data/snapshots logs || true
+          if ! git diff --cached --quiet; then
+            git commit -m "triage ${{ github.run_id }} — overrides + état [skip ci]"
+            git pull --rebase --autostash origin ${{ github.ref_name }} || true
+            git push
+          else
+            echo "Aucun changement."
+          fi
