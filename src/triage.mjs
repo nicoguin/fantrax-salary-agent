@@ -59,7 +59,7 @@ La VÉRITÉ de référence est la valeur actuellement stockée (rafraîchie quot
 Décide avec prudence :
 - action "apply" UNIQUEMENT si l'écart est RÉEL et la correction CLAIRE et NON AMBIGÜE (ex. salaire manifestement périmé avec valeur sûre, erreur d'agent évidente). Fournis fix.field ("year" ex "1+0"/"2-way"/"10 D", ou "sal" entier en dollars) et fix.value.
 - action "explain" si l'utilisateur se trompe, plaisante, ou si la valeur stockée est déjà correcte. Pas de changement.
-- action "escalate" (vers l'admin humain) si : homonymie (NE JAMAIS deviner quel joueur), convention de ligue ou joueur non-NBA (ex. valeurs type "P37"), bug d'agent reproductible, ou confiance faible.
+- action "escalate" (vers l'admin humain) si : homonymie (NE JAMAIS deviner quel joueur), convention de ligue ou joueur non-NBA (valeur conventionnelle hors barème standard), bug d'agent reproductible, ou confiance faible.
 Réponds STRICTEMENT en JSON, une seule ligne, sans texte autour :
 {"type":"salaire|equipe|homonymie|erreur_agent|autre","player":"nom","assessment":"reel|erreur_user|blague|incertain","action":"apply|explain|escalate","fix":{"field":"year|sal","value":"..."}|null,"reply":"message court en français pour l'utilisateur, poli, factuel, expliquant l'écart","escalation_note":"contexte pour l'admin"|null,"confidence":0.0}`;
 
